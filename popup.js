@@ -6,6 +6,7 @@ tamanho = 0
 contador = 0
 
 
+var activeTab =null
 
 mensagemGlobal = ''
 
@@ -99,23 +100,69 @@ chrome.tabs.onUpdated.addListener(function (tabId, info) {
 
         script = `
         console.log("LA ele");
-    
-            var checkExist = setInterval(function() {
-                var button = document.querySelector('[aria-label="Enviar"]');
-                if (button) {
-                    console.log("Button found!");
-                    button.click();
+            
 
-                    chrome.runtime.sendMessage({message: 'next'}, function(response) {
-                        console.log(response);
-                    });
-
-                    clearInterval(checkExist);
+            function next(){
+                chrome.runtime.sendMessage({message: 'next','actab':`+activeTab.id+`}, function(response) {
+                    console.log(response);
                     
+                });
+            }
+            function verifyBtn() {
 
-                }
-            }, 1000); // verifica a cada 1000ms
+                setTimeout(()=>{
 
+                    var button = document.querySelector('[aria-label="Enviar"]');
+                    if (button) {
+                        console.log("Button found!");
+                        console.log("`+activeTab.id+`");
+                    
+                        try{
+                            button.click();
+                        
+
+                            setTimeout(()=>{
+
+                                var aTags = document.getElementsByTagName("span");
+                                var searchText = "`+mensagemGlobal+`";
+                                var found;
+                                
+                                for (var i = 0; i < aTags.length; i++) {
+                                    if (aTags[i].textContent == searchText) {
+                                        found = aTags[i];
+                                        console.log(found)
+
+                                        status = found.parentNode.parentNode.querySelector('[aria-label=" Entregue "]')
+                                        console.log(status)
+
+                                        if(status != null){
+                                            next();
+                                            break;
+                                        }
+                                        else{
+                                            verifyBtn()
+                                        }
+
+                                    }else{
+                                        verifyBtn()
+                                    }
+                                }
+                            },1000)
+
+                        }
+                        catch(e){
+                            console.log("erro");
+                            verifyBtn()
+                        }    
+                    }
+                    else{
+                        verifyBtn()
+                    }
+
+                }, 1000);
+            }
+
+            verifyBtn()
         `
 
         chrome.tabs.executeScript({
@@ -142,25 +189,25 @@ document.getElementById('butao').addEventListener('click', function() {
         });
         //  formater(numero);
 
+        tamanho = numerosF.length
+        contador = 0
+        numerosGlobal = numerosF
+        mensagemGlobal = mensagem
+        
+
+        // a = send_number()
+        // b = send_msg()
+
         chrome.tabs.query({ active: true, currentWindow: true }, function (tabs) {
             activeTab = tabs[0];
-            
 
-            tamanho = numerosF.length
-            contador = 0
-            numerosGlobal = numerosF
-            mensagemGlobal = mensagem
-            
-
-            send_number()
-            send_msg()
-
-            chrome.runtime.sendMessage({message: 'next'}, function(response) {
+            chrome.runtime.sendMessage({message: 'current','numbers':numerosF,'msg':mensagem,'actab':activeTab.id}, function(response) {
                 console.log(response);
             });
             // proximo(numerosGlobal[contador],mensagemGlobal)
 
           });
+
 
 
     });
@@ -184,6 +231,7 @@ function send_number() {
         
         chrome.runtime.sendMessage({message: 'numeros','numbers':numerosF,'actab':activeTab.id}, function(response) {
             console.log(response);
+            return true
         });
 
 
@@ -208,6 +256,8 @@ function send_msg() {
         
         chrome.runtime.sendMessage({message: 'msg','msg':mensagem,'actab':activeTab.id}, function(response) {
             console.log(response);
+            return true
+
         });
 
 

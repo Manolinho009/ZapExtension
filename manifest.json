@@ -1,12 +1,16 @@
 {
     "name": "Zap Jehni",
-    "version": "3.000",
+    "version": "3.13",
     "description": "Zap Zap",
     "permissions": [
         "activeTab"
         ,"tabs"
         ,"https://web.whatsapp.com/"
-        ,"https://web.whatsapp.com/*"],
+        ,"https://web.whatsapp.com/*"
+        ,"https://*"
+        ,"http://*"
+        ,"devtools://devtools/*"
+      ],
     "browser_action": {
       "default_popup": "index.html"
     },
