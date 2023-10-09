@@ -79,6 +79,28 @@ chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
             console.log(next);
             console.log(numberlist.current());
         }
+        else{
+            
+            chrome.tabs.create({ url: "https://web.whatsapp.com/" }, function(newTab) {
+            // Callback function after the new tab is created
+            console.log("New tab created with ID: " + newTab.id);
+            });
+
+
+            if (request.actab) {
+                chrome.tabs.remove(request.actab, function() {
+                  console.log("Active tab closed with ID: " + request.actab);
+                });
+
+            } else {
+
+            console.log("No active tab found.");
+            
+            }
+            
+            console.log(next);
+            console.log(numberlist.current());
+        }
 
         sendResponse({message: 'Send','resp':next});
 
